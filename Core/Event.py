@@ -1,3 +1,4 @@
 
 
 class Event:
+    pass
