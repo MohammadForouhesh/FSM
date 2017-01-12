@@ -6,8 +6,6 @@ def listify(obj):
         return obj if isinstance(obj, (list, tuple, type(None)))else [obj]
 
 
-
-
 def get_trigger(model, trigger_name, *args, **kwargs):
     func = getattr(model, trigger_name, None)
     if func:
