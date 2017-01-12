@@ -105,13 +105,13 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Core/Core.py" />
-        <option value="$PROJECT_DIR$/Core/State.py" />
         <option value="$PROJECT_DIR$/Core/Condition.py" />
         <option value="$PROJECT_DIR$/Core/Transition.py" />
         <option value="$PROJECT_DIR$/Core/EventData.py" />
         <option value="$PROJECT_DIR$/Core/Machine.py" />
         <option value="$PROJECT_DIR$/Core/Event.py" />
         <option value="$PROJECT_DIR$/StaticMethod.py" />
+        <option value="$PROJECT_DIR$/Core/State.py" />
       </list>
     </option>
   </component>
@@ -411,7 +411,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1922" y="104" width="1916" height="2054" extended-state="5" />
+    <frame x="1922" y="104" width="1916" height="2054" extended-state="4" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2560175" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
