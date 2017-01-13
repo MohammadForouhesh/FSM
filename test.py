@@ -22,9 +22,9 @@ class Matter(object):
     def show_graph(self, name: str):
         self.graph.draw('state' + name + '.png', prog='dot')
 
-states=['0', '1']
+states=[str(0), str(1)]
 transitions = [
-    {'trigger': 'b', 'source': '0', 'dest': '0'},
+    {'trigger': 'c, b', 'source': '0', 'dest': '0'},
     {'trigger': 'a', 'source': '1', 'dest': '0'},
     {'trigger': 'a', 'source': '0', 'dest': '1'}
 ]
@@ -38,10 +38,7 @@ machine = GraphMachine(model=model,
                        title="transient",
                        show_conditions=True)
 
-model.b()
+model.a()
 model.a()
 
-for s in 'aabaabaaabb':
-    p = callstr2(s)
-    model.p()
 
