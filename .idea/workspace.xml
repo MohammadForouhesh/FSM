@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e97b1cb4-0f4a-460e-9aa0-60f53af9ed70" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Core/Condition.py" afterPath="$PROJECT_DIR$/Core/Condition.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Core/Event.py" afterPath="$PROJECT_DIR$/Core/Event.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Core/Machine.py" afterPath="$PROJECT_DIR$/Core/Machine.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Core/Transition.py" afterPath="$PROJECT_DIR$/Core/Transition.py" />
-    </list>
+    <list default="true" id="e97b1cb4-0f4a-460e-9aa0-60f53af9ed70" name="Default" comment="" />
     <ignored path="FSM.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path=".idea/dataSources.local.xml" />
