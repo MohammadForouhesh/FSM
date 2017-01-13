@@ -22,11 +22,11 @@ class EventData(object):
         self.state = state
         self.event = event
         self.machine = machine
-        self.model = model          # bug
+        self.model = model
         self.args = args
         self.kwargs = kwargs
 
-    def update(self, machine):
+    def update(self, model):
         """ Updates the current State to accurately reflect the Machine. """
-        self.state = self.machine.get_state(machine.current_state)
+        self.state = self.machine.get_state(model.state)
 

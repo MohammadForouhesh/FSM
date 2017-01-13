@@ -31,11 +31,12 @@ class GraphMachine(Machine):
         super(GraphMachine, self).__init__(*args, **kwargs)
 
         # Create graph at beginning
-        if hasattr(self, 'get_graph'):
-            raise AttributeError('Model already has a get_graph attribute.')
-        setattr(self, 'get_graph', partial(self._get_graph, self))
-        self.get_graph()
-        self.set_node_state(self.graph, self.initial, 'active')
+        for model in self.models:
+            if hasattr(model, 'get_graph'):
+                raise AttributeError('Model already has a get_graph attribute.')
+            setattr(model, 'get_graph', partial(self._get_graph, model))
+            model.get_graph()
+            self.set_node_state(model.graph, self.initial, 'active')
 
         # if model is not the machine
         if not hasattr(self, 'get_graph'):
@@ -64,13 +65,15 @@ class GraphMachine(Machine):
 
     def add_states(self, *args, **kwargs):
         super(GraphMachine, self).add_states(*args, **kwargs)
-        if hasattr(self, 'graph'):
-            self.get_graph(force_new=True)
+        for model in self.models:
+            if hasattr(model, 'graph'):
+                model.get_graph(force_new=True)
 
     def add_transition(self, *args, **kwargs):
         super(GraphMachine, self).add_transition(*args, **kwargs)
-        if hasattr(self, 'graph'):
-            self.get_graph(force_new=True)
+        for model in self.models:
+            if hasattr(model, 'graph'):
+                model.get_graph(force_new=True)
 
     def set_node_state(self, graph, node_name, state='default', reset=False):
         if reset:

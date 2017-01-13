@@ -33,11 +33,11 @@ class Event(object):
         """
         self.transitions[transition.source].append(transition)
 
-    def trigger(self, *args, **kwargs):
-        f = partial(self._trigger, self.machine, *args, **kwargs)
+    def trigger(self, model, *args, **kwargs):
+        f = partial(self._trigger, model, *args, **kwargs)
         return self.machine._process(f)
 
-    def _trigger(self, *args, **kwargs) -> bool:
+    def _trigger(self, model, *args, **kwargs) -> bool:
         """ Serially execute all transitions that match the current state,
             halting as soon as one successfully completes.
         
@@ -47,15 +47,17 @@ class Event(object):
             returns        : boolean indicating whether or not a transition was
                              successfully executed (True if successful, False if not).
         """
-        state = self.machine.current_state
+        state = self.machine.get_state(model.state)
         if state.name not in self.transitions:
-            msg = "%sCan't trigger event %s from state %s!" % (self.machine.id, self.name, state.name)
+            msg = "%sCan't trigger event %s from state %s!" % (self.machine.id, self.name,
+                                                               state.name)
             if state.ignore_invalid_triggers:
                 logger.warning(msg)
                 return False
             else:
                 raise Machine.MachineError(msg)
-        event = EventData.EventData(state, self, self.machine, self.machine, args=args, kwargs=kwargs)
+        event = EventData.EventData(state, self, self.machine, model,
+                                    args=args, kwargs=kwargs)
         for t in self.transitions[state.name]:
             # event.transition = t
             event.kwargs = t
