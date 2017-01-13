@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e97b1cb4-0f4a-460e-9aa0-60f53af9ed70" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Core/Machine.py" afterPath="$PROJECT_DIR$/Core/Machine.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/state.png" afterPath="$PROJECT_DIR$/state.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.ipynb_checkpoints/report_and_test-checkpoint.ipynb" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/report_and_test-checkpoint.ipynb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/report_and_test.ipynb" afterPath="$PROJECT_DIR$/report_and_test.ipynb" />
     </list>
     <ignored path="FSM.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -547,7 +549,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="48" width="3840" height="2112" extended-state="6" />
+    <frame x="0" y="48" width="3840" height="2112" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.12686567" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
