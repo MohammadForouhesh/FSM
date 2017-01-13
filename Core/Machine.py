@@ -16,13 +16,11 @@ logger.addHandler(logging.NullHandler())
 
 
 class Machine(object):
-    __slots__ = 'models', 'states', '_initial', 'send_event','ignore_invalid_triggers',\
+    __slots__ = 'models', 'states', '_initial', 'current_state', 'send_event','ignore_invalid_triggers',\
                 'name', '_queued', '_transition_queue', '_initial',\
                 'events', 'id',
 
-    separator = '_'
-
-    def __init__(self, states: State=None, initial:str=None, transitions: list=None,
+    def __init__(self, states: list, initial: str, transitions: list,
                  send_event: bool=False, ignore_invalid_triggers: bool=None, name: str=None,
                  queued: bool=False):
 
@@ -38,14 +36,10 @@ class Machine(object):
         self.id = name + ": " if name is not None else ""
         self._queued = queued
         self._transition_queue = deque()
-
-        if initial is None:
-            initial = 'initial'
-            self.add_states(initial)
         self._initial = initial
+        self.add_states(states)
 
-        if states is not None:
-            self.add_states(states)
+        self.current_state = self.states.get(self._initial)
 
         if transitions is not None:
             transitions = listify(transitions)
@@ -80,7 +74,7 @@ class Machine(object):
     def get_state(self, state):
         """ Return the State instance with the passed name. """
         if state not in self.states:
-            raise ValueError("State '%s' is not a registered state." % state)
+            raise ValueError("State '%s' is not a registered state." % state.name)
         return self.states[state]
 
     def set_state(self, state):
@@ -131,12 +125,13 @@ class Machine(object):
         else:
             return False
 
-    def _process(self, trigger):
+    def _process(self, next_state: State,  trigger: callable):
 
         # default processing
         if not self.has_queue:
             if not self._transition_queue:
                 # if trigger raises an Error, it has to be handled by the Machine.process caller
+                self.current_state = next_state
                 return trigger()
             else:
                 raise MachineError("transition queue is not empty!")

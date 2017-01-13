@@ -36,8 +36,9 @@ machine = GraphMachine(states=states,
 machine.graph.draw('state.png', prog='dot')
 display(Image('state.png'))
 
-print(machine.events)
-
+print(machine.current_state)
+machine.current_state
+event._trigger()
 # print(machine.darja())
 
 print(machine.is_state('00'))
