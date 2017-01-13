@@ -26,21 +26,33 @@ class Matter(object):
     def show_graph(self, name: str):
         self.graph.draw('state' + name + '.png', prog='dot')
 
-states=[str(0), str(1)]
+
+states=['000', '001', '010', '011', '100', '101', '110', '111']
 transitions = [
-    {'trigger': 'c, b', 'source': '0', 'dest': '0'},
-    {'trigger': 'a', 'source': '1', 'dest': '0'},
-    {'trigger': 'a', 'source': '0', 'dest': '1'}
+    {'trigger': 'add_zero', 'source': '000', 'dest': '100'},
+    {'trigger': 'add_one', 'source': '000', 'dest': '001'},
+    {'trigger': 'add_zero', 'source': '001', 'dest': '101'},
+    {'trigger': 'add_one', 'source': '001', 'dest': '010'},
+    {'trigger': 'add_zero', 'source': '010', 'dest': '110'},
+    {'trigger': 'add_one', 'source': '010', 'dest': '011'},
+    {'trigger': 'add_zero', 'source': '011', 'dest': '111'},
+    {'trigger': 'add_one', 'source': '011', 'dest': '000'},
+    {'trigger': 'add_zero', 'source': '100', 'dest': '000'},
+    {'trigger': 'add_one', 'source': '100', 'dest': '101'},
+    {'trigger': 'add_zero', 'source': '101', 'dest': '001'},
+    {'trigger': 'add_one', 'source': '101', 'dest': '110'},
+    {'trigger': 'add_zero', 'source': '110', 'dest': '010'},
+    {'trigger': 'add_one', 'source': '110', 'dest': '111'},
+    {'trigger': 'add_zero', 'source': '111', 'dest': '011'},
+    {'trigger': 'add_one', 'source': '111', 'dest': '100'},
 ]
 
 model = Matter()
 machine = GraphMachine(model=model,
                        states=states,
                        transitions=transitions,
-                       auto_transitions=False,
-                       initial='0',
+                       initial='000',
                        title="transient",
                        show_conditions=True)
 
-model.a()
-model.a()
+print(machine.is_state('000', model=model))
