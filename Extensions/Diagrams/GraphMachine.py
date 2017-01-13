@@ -33,12 +33,11 @@ class GraphMachine(Machine):
         # Create graph at beginning
         for model in self.models:
             if hasattr(model, 'get_graph'):
-                raise AttributeError('Model already has a get_graph attribute. Graph retrieval cannot be bound.')
+                raise AttributeError('Model already has a get_graph attribute.')
             setattr(model, 'get_graph', partial(self._get_graph, model))
             model.get_graph()
             self.set_node_state(model.graph, self.initial, 'active')
 
-        # for backwards compatibility assign get_combined_graph to get_graph
         # if model is not the machine
         if not hasattr(self, 'get_graph'):
             setattr(self, 'get_graph', self.get_combined_graph)
@@ -86,9 +85,7 @@ class GraphMachine(Machine):
         else:
             node = graph
             path = node_name.split(NestedState.separator)
-            # A subgraph cannot be retrieved from another nested subgraph.
             # We have to traverse through the whole tree.
-            # From cluster_parent to cluster_parent_child1 to cluster_parent_child1_child2 and so on
             current_path = 'cluster_' + path.pop(0)
             node = node.get_subgraph(current_path)
             while len(path) > 0:

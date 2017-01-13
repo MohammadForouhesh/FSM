@@ -1,4 +1,5 @@
 import os, sys, inspect
+from pprint import pprint
 
 from Extensions.Diagrams.GraphMachine import GraphMachine
 cmd_folder = os.path.realpath(
@@ -17,6 +18,9 @@ class Matter(object):
 
     def is_also_valid(self):
         return True
+
+    def satisfaction(self, stream: str) -> bool:
+        pass
 
     # graph object is created by the machine
     def show_graph(self, name: str):
@@ -40,5 +44,3 @@ machine = GraphMachine(model=model,
 
 model.a()
 model.a()
-
-

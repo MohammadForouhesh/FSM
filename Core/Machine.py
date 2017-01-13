@@ -131,8 +131,7 @@ class Machine(object):
             if model not in self.models:
 
                 if hasattr(model, 'trigger'):
-                    logger.warning("%sModel already contains an attribute 'trigger'. Skip method binding ",
-                                   self.id)
+                    logger.warning("%sModel already contains an attribute 'trigger'. Skip method binding ",self.id)
                 else:
                     model.trigger = partial(get_trigger, model)
 
@@ -146,10 +145,6 @@ class Machine(object):
                 self.models.append(model)
 
     def remove_model(self, model):
-        """ 
-        Deregister a model with the state machine. The model will still contain all previously added triggers
-        and callbacks, but will not receive updates when states or transitions are added to the Machine. 
-        """
         models = listify(model)
 
         for model in models:
