@@ -38,6 +38,6 @@ display(Image('state.png'))
 
 print(machine.events)
 
-print(machine.darja())
+# print(machine.darja())
 
 print(machine.is_state('00'))

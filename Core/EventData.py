@@ -22,7 +22,7 @@ class EventData(object):
         self.state = state
         self.event = event
         self.machine = machine
-        self.model = model
+        self.model = model          # bug
         self.args = args
         self.kwargs = kwargs
 

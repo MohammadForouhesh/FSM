@@ -1,13 +1,11 @@
 from collections import OrderedDict
 from collections import deque
-from functools import partial
 from six import string_types
 from builtins import object
 
 import inspect
 import logging
 
-from Core import EventData
 from Core import State
 from Core import Event
 from Core import Transition
@@ -159,8 +157,6 @@ class Machine(object):
                 self._transition_queue.clear()
                 raise
         return True
-
-
         # 3123123
 # 123123
 
