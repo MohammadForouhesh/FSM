@@ -125,7 +125,7 @@ class Machine(object):
 
     @staticmethod
     def _create_transition(*args, **kwargs):
-        return Transition(*args, **kwargs)
+        return Transition.Transition(*args, **kwargs)
 
     @staticmethod
     def _create_event(*args, **kwargs):
@@ -229,9 +229,7 @@ class Machine(object):
         states = set(args)
         return [t for (t, ev) in self.events.items() if any(state in ev.transitions for state in states)]
 
-    def add_transition(self, trigger: str, source: str, dest: str, conditions:(str or list)=None,
-                       unless:(str or list)=None, before:(str or list)=None, after:(str or list)=None,
-                       prepare:(str or list)=None):
+    def add_transition(self, trigger: str, source: str, dest: str, conditions:(str or list)=None):
         """ Create a new Transition instance and add it to the internal list.
 
             :param trigger    : The name of the method that will trigger the
@@ -246,12 +244,6 @@ class Machine(object):
                                 for the transition to take place. Either a list providing the
                                 name of a callable, or a list of callables. For the transition
                                 to occur, ALL callables must return True.
-            :param unless     : Condition(s) that must return False in order
-                                for the transition to occur. Behaves just like conditions arg
-                                otherwise.
-            :param before     : Callables to call before the transition.
-            :param after      : Callables to call after the transition.
-            :param prepare    : Callables to call when the trigger is activated
         """
         if trigger not in self.events:
             self.events[trigger] = self._create_event(trigger, self)
@@ -265,8 +257,7 @@ class Machine(object):
         for s in source:
             if self._has_state(dest):
                 dest = dest.name
-            t = self._create_transition(s, dest, conditions, unless, before,
-                                        after, prepare)
+            t = self._create_transition(s, dest, conditions)
             self.events[trigger].add_transition(t)
 
     def _callback(self, func: callable, event_data: EventData):
@@ -322,7 +313,6 @@ class Machine(object):
 
     @classmethod
     def _identify_callback(cls, name):
-        # Does the prefix match a known callback?
         try:
             callback_type = cls.callbacks[[name.find(x) for x in cls.callbacks].index(0)]
         except ValueError:
@@ -338,8 +328,6 @@ class Machine(object):
         return callback_type, target
 
     def __getattr__(self, name):
-        # Machine.__dict__ does not contain double underscore variables.
-        # Class variables will be mangled.
         if name.startswith('__'):
             raise AttributeError("{} does not exist".format(name))
 
