@@ -7,7 +7,6 @@ import logging
 from Core import Machine
 from Core import Transition
 from Core import EventData
-from Core.Machine import MachineError
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -56,11 +55,12 @@ class Event(object):
                 logger.warning(msg)
                 return False
             else:
-                raise MachineError(msg)
-        event = EventData(state, self, self.machine, model,
-                          args=args, kwargs=kwargs)
+                raise Machine.MachineError(msg)
+        event = EventData.EventData(state, self, self.machine, model,
+                                    args=args, kwargs=kwargs)
         for t in self.transitions[state.name]:
-            event.transition = t
+            # event.transition = t
+            event.kwargs = t
             if t.execute(event):
                 return True
         return False

@@ -92,7 +92,7 @@ class Machine(object):
         self._transition_queue = deque()
         self.models = []
 
-        if model is None and add_self:  # TODO(pbovbel) reconsider API for next major release
+        if model is None and add_self:
             model = self
 
         if model and initial is None:
@@ -161,7 +161,7 @@ class Machine(object):
 
     @staticmethod
     def _create_event(*args, **kwargs):
-        return Event(*args, **kwargs)
+        return Event.Event(*args, **kwargs)
 
     @property
     def initial(self):
@@ -230,11 +230,11 @@ class Machine(object):
         states = listify(states)
         for state in states:
             if isinstance(state, string_types):
-                state = State(state, on_enter=on_enter, on_exit=on_exit, ignore_invalid_triggers=ignore)
+                state = State.State(state, on_enter=on_enter, on_exit=on_exit, ignore_invalid_triggers=ignore)
             elif isinstance(state, dict):
                 if 'ignore_invalid_triggers' not in state:
                     state['ignore_invalid_triggers'] = ignore
-                state = State(**state)
+                state = State.State(**state)
             self.states[state.name] = state
             for model in self.models:
                 self._add_model_to_state(state, model)
@@ -357,7 +357,7 @@ class Machine(object):
             func(*event_data.args, **event_data.kwargs)
 
     def _has_state(self, s):
-        if isinstance(s, State):
+        if isinstance(s, State.State):
             if s in self.states.values():
                 return True
             else:

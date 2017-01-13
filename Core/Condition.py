@@ -36,4 +36,4 @@ class Condition(object):
         if event_data.machine.send_event:
             return predicate(event_data) == self.target
         else:
-            return predicate(*event_data.args, **event_data.kwargs) == self.target
+            return predicate() == self.target

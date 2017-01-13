@@ -1,5 +1,7 @@
 import logging
 
+from StaticMethod import listify
+
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
