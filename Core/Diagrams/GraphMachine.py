@@ -1,12 +1,10 @@
+import logging
 from functools import partial
 
+from Core.Diagrams.TransitionGraphSupport import TransitionGraphSupport
+
+from Core.Diagrams.Graph import Graph
 from Core.Machine import Machine
-from Extensions.Diagrams.Graph import Graph
-
-import logging
-
-from Extensions.Diagrams.TransitionGraphSupport import TransitionGraphSupport
-from Extensions.Nesting.NestingState import NestedState
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -37,7 +35,6 @@ class GraphMachine(Machine):
             setattr(model, 'get_graph', partial(self._get_graph, model))
             model.get_graph()
             self.set_node_state(model.graph, self.initial, 'active')
-
         # if model is not the machine
         if not hasattr(self, 'get_graph'):
             setattr(self, 'get_graph', self.get_combined_graph)
@@ -82,16 +79,6 @@ class GraphMachine(Machine):
         if graph.has_node(node_name):
             node = graph.get_node(node_name)
             func = self.set_node_style
-        else:
-            node = graph
-            path = node_name.split(NestedState.separator)
-            # We have to traverse through the whole tree.
-            current_path = 'cluster_' + path.pop(0)
-            node = node.get_subgraph(current_path)
-            while len(path) > 0:
-                current_path += NestedState.separator + path.pop(0)
-                node = node.get_subgraph(current_path)
-            func = self.set_graph_style
         func(graph, node, state)
 
     @staticmethod

@@ -1,7 +1,8 @@
-import os, sys, inspect
-from pprint import pprint
+import inspect
+import os
+import sys
 
-from Extensions.Diagrams.GraphMachine import GraphMachine
+from Core.Diagrams.GraphMachine import GraphMachine
 cmd_folder = os.path.realpath(
     os.path.dirname(
         os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0])))

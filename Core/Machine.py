@@ -31,49 +31,6 @@ class Machine(object):
                  ordered_transitions: bool=False, ignore_invalid_triggers: bool=None,
                  before_state_change: callable=None, after_state_change: callable=None, name: str=None,
                  queued: bool=False, add_self: bool=True, **kwargs: dict):
-        """
-            :param model                  : The object(s) whose states we want to manage. If None,
-                                            the current Machine instance will be used the model (i.e., all
-                                            triggering events will be attached to the Machine itself).
-            :param states                 : A list of valid states. Each element can be either a
-                                            string or a State instance. If string, a new generic State
-                                            instance will be created that has the same name as the string.
-            :param initial                : The initial state of the Machine.
-            :param transitions            : An optional list of transitions. Each element
-                                            is a dictionary of named arguments to be passed onto the
-                                            Transition initializer.
-            :param send_event             : When True, any arguments passed to trigger
-                                            methods will be wrapped in an EventData object, allowing
-                                            indirect and encapsulated access to data. When False, all
-                                            positional and keyword arguments will be passed directly to all
-                                            callback methods.
-            :param auto_transitions       : When True (default), every state will
-                                            automatically have an associated to_{state}() convenience
-                                            trigger in the base model.
-            :param ordered_transitions    : Convenience argument that calls
-                                            add_ordered_transitions() at the end of initialization if set
-                                            to True.
-            :param ignore_invalid_triggers: when True, any calls to trigger methods
-                                            that are not valid for the present state (e.g., calling an
-                                            a_to_b() trigger when the current state is c) will be silently
-                                            ignored rather than raising an invalid transition exception.
-            :param before_state_change    : A callable called on every change state before
-                                            the transition happened. It receives the very same args as normal
-                                            callbacks
-            :param after_state_change     : A callable called on every change state after
-                                            the transition happened. It receives the very same args as normal
-                                            callbacks
-            :param name                   : If a name is set, it will be used as a prefix for logger output
-            :param queued                 : When True, processes transitions sequentially. A trigger
-                                            executed in a state callback function will be queued and executed 
-                                            later. Due to the nature of the queued processing, all transitions will
-                                            _always_ return True since conditional checks cannot be conducted at 
-                                            queueing time.
-            :param add_self               : If no model(s) provided, intialize state machine against self.
-
-            :param **kwargs               : additional arguments passed to next class in MRO. This can be 
-                                            ignored in most cases.
-        """
 
         try:
             super(Machine, self).__init__(**kwargs)
@@ -202,20 +159,7 @@ class Machine(object):
         """ Add new state(s).
             :param states                   : a list, a State instance, the
                                               name of a new state, or a dict with keywords to pass on to the
-                                              State initializer. If a list, each element can be of any of the
-                                              latter three types.
-            :param on_enter                 : callbacks to trigger when the state is
-                                              entered. Only valid if first argument is string.
-            :param on_exit                  : callbacks to trigger when the state is
-                                              exited. Only valid if first argument is string.
-            :param ignore_invalid_triggers  : when True, any calls to trigger methods
-                                              that are not valid for the present state (e.g., calling an
-                                              a_to_b() trigger when the current state is c) will be silently
-                                              ignored rather than raising an invalid transition exception.
-                                              Note that this argument takes precedence over the same
-                                              argument defined at the Machine level, and is in turn
-                                              overridden by any ignore_invalid_triggers explicitly
-                                              passed in an individual state's initialization arguments.
+                                              State initializer.
         """
 
         ignore = ignore_invalid_triggers
@@ -260,32 +204,9 @@ class Machine(object):
         return [t for (t, ev) in self.events.items() if any(state in ev.transitions for state in states)]
 
     def add_transition(self, trigger: str, source: str, dest: str, conditions:(str or list)=None,
-                       unless:(str or list)=None, before:(str or list)=None, after:(str or list)=None,
+                       before:(str or list)=None, after:(str or list)=None,
                        prepare:(str or list)=None, **kwargs: dict):
-        """ Create a new Transition instance and add it to the internal list.
 
-            :param trigger    : The name of the method that will trigger the
-                                transition. This will be attached to the currently specified
-                                model (e.g., passing trigger='advance' will create a new
-                                advance() method in the model that triggers the transition.)
-            :param source     : The name of the source state--i.e., the state we
-                                are transitioning away from.
-            :param dest       : The name of the destination State--i.e., the state
-                                we are transitioning into.
-            :param conditions : Condition(s) that must pass in order
-                                for the transition to take place. Either a list providing the
-                                name of a callable, or a list of callables. For the transition
-                                to occur, ALL callables must return True.
-            :param unless     : Condition(s) that must return False in order
-                                for the transition to occur. Behaves just like conditions arg
-                                otherwise.
-            :param before     : Callables to call before the transition.
-            :param after      : Callables to call after the transition.
-            :param prepare    : Callables to call when the trigger is activated
-            :param **kwargs   : Additional arguments which can be passed to the created transition.
-                                This is useful if you plan to extend Machine.Transition and require
-                                more parameters.
-        """
         if trigger not in self.events:
             self.events[trigger] = self._create_event(trigger, self)
             for model in self.models:
@@ -305,30 +226,17 @@ class Machine(object):
         for s in source:
             if self._has_state(dest):
                 dest = dest.name
-            t = self._create_transition(s, dest, conditions, unless, before,
+            t = self._create_transition(s, dest, conditions, before,
                                         after, prepare, **kwargs)
             self.events[trigger].add_transition(t)
 
     def add_ordered_transitions(self, states: list=None, trigger: str='next_state',
                                 loop: bool=True, loop_includes_initial: bool=True):
-        """ Add a set of transitions that move linearly from state to state.
-            states                : A list of state names defining the order of the
-                                    transitions. E.g., ['A', 'B', 'C'] will generate transitions
-                                    for A --> B, B --> C, and C --> A (if loop is True). If states
-                                    is None, all states in the current instance will be used.
-            trigger               : The name of the trigger method that advances to
-                                    the next state in the sequence.
-            loop                  : Whether or not to add a transition from the last
-                                    state to the first state.
-            loop_includes_initial : If no initial state was defined in
-                                    the machine, setting this to True will cause the _initial state
-                                    placeholder to be included in the added transitions.
-        """
+
         if states is None:
             states = list(self.states.keys())
         if len(states) < 2:
-            raise MachineError("Can't create ordered transitions on a Machine "
-                               "with fewer than 2 states.")
+            raise MachineError("with fewer than 2 states.")
         for i in range(1, len(states)):
             self.add_transition(trigger, states[i - 1], states[i])
         if loop:
@@ -337,12 +245,6 @@ class Machine(object):
             self.add_transition(trigger, states[-1], states[0])
 
     def _callback(self, func: callable, event_data: EventData):
-        """ Trigger a callback function, possibly wrapping it in an EventData instance.
-            func        : The callback function.
-            event_data  : An EventData instance to pass to the
-                          callback (if event sending is enabled) or to extract arguments
-                          from (if event sending is disabled).
-        """
         if isinstance(func, string_types):
             func = getattr(event_data.model, func)
 

@@ -1,4 +1,4 @@
-from Extensions.Diagrams.Diagram import Diagram
+from Core.Diagrams.Diagram import Diagram
 try:
     import pygraphviz as pgv
 except:
@@ -90,10 +90,6 @@ class Graph(Diagram):
         return edge_label
 
     def get_graph(self, title=None):
-        """ Generate a DOT graph with pygraphviz, returns an AGraph object
-        Args:
-            title (string): Optional title for the graph.
-        """
         if not pgv:
             raise Exception('AGraph diagram requires pygraphviz')
 
