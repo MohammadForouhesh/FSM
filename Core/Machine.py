@@ -109,7 +109,7 @@ class Machine(object):
 
     @staticmethod
     def _create_transition(*args, **kwargs):
-        return Transition(*args, **kwargs)
+        return Transition.Transition(*args, **kwargs)
 
     @staticmethod
     def _create_event(*args, **kwargs):
@@ -156,11 +156,6 @@ class Machine(object):
 
     def add_states(self, states: (list or str or dict or State), on_enter: (str or list)=None,
                    on_exit: (str or list)=None, ignore_invalid_triggers: bool=None):
-        """ Add new state(s).
-            :param states                   : a list, a State instance, the
-                                              name of a new state, or a dict with keywords to pass on to the
-                                              State initializer.
-        """
 
         ignore = ignore_invalid_triggers
         if ignore is None:
@@ -177,7 +172,6 @@ class Machine(object):
             self.states[state.name] = state
             for model in self.models:
                 self._add_model_to_state(state, model)
-        # Add automatic transitions after all states have been created
         if self.auto_transitions:
             for s in self.states.keys():
                 self.add_transition('to_%s' % s, '*', s)
@@ -185,7 +179,6 @@ class Machine(object):
     def _add_model_to_state(self, state, model):
         setattr(model, 'is_%s' % state.name,
                 partial(self.is_state, state.name, model))
-        #  Add enter/exit callbacks if there are existing bound methods
         enter_callback = 'on_enter_' + state.name
         if hasattr(model, enter_callback) and \
                 inspect.ismethod(getattr(model, enter_callback)):
@@ -217,17 +210,10 @@ class Machine(object):
         else:
             source = [s.name if self._has_state(s) else s for s in listify(source)]
 
-        if self.before_state_change:
-            before = listify(before) + listify(self.before_state_change)
-
-        if self.after_state_change:
-            after = listify(after) + listify(self.after_state_change)
-
         for s in source:
             if self._has_state(dest):
                 dest = dest.name
-            t = self._create_transition(s, dest, conditions, before,
-                                        after, prepare, **kwargs)
+            t = self._create_transition(s, dest, conditions, **kwargs)
             self.events[trigger].add_transition(t)
 
     def add_ordered_transitions(self, states: list=None, trigger: str='next_state',
@@ -267,52 +253,41 @@ class Machine(object):
         # default processing
         if not self.has_queue:
             if not self._transition_queue:
-                # if trigger raises an Error, it has to be handled by the Machine.process caller
                 return trigger()
             else:
                 raise MachineError("Attempt to process events synchronously while transition queue is not empty!")
 
-        # process queued events
         self._transition_queue.append(trigger)
-        # another entry in the queue implies a running transition; skip immediate execution
         if len(self._transition_queue) > 1:
             return True
 
-        # execute as long as transition queue is not empty
         while self._transition_queue:
             try:
                 self._transition_queue[0]()
                 self._transition_queue.popleft()
             except Exception:
-                # if a transition raises an exception, clear queue and delegate exception handling
                 self._transition_queue.clear()
                 raise
         return True
 
     @classmethod
     def _identify_callback(cls, name):
-        # Does the prefix match a known callback?
         try:
             callback_type = cls.callbacks[[name.find(x) for x in cls.callbacks].index(0)]
         except ValueError:
             return None, None
 
-        # Extract the target by cutting the string after the type and separator
         target = name[len(callback_type) + len(cls.separator):]
 
-        # Make sure there is actually a target to avoid index error and enforce _ as a separator
         if target == '' or name[len(callback_type)] != cls.separator:
             return None, None
 
         return callback_type, target
 
     def __getattr__(self, name):
-        # Machine.__dict__ does not contain double underscore variables.
-        # Class variables will be mangled.
         if name.startswith('__'):
             raise AttributeError("{} does not exist".format(name))
 
-        # Could be a callback
         callback_type, target = self._identify_callback(name)
 
         if callback_type is not None:
@@ -325,7 +300,6 @@ class Machine(object):
                 state = self.get_state(target)
                 return partial(state.add_callback, callback_type[3:])
 
-        # Nothing matched
         raise AttributeError("{} does not exist".format(name))
 
 
