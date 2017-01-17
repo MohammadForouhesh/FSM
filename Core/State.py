@@ -22,21 +22,18 @@ class State(object):
                 str(self.on_exit)
 
     def enter(self, event_data: EventData):
-        """ Triggered when a state is entered. """
-        logger.debug("%sEntering state %s. Processing callbacks...", event_data.machine.id, self.name)
+        logger.debug("{}Entering state {}. Processing callbacks...".format(event_data.machine.id, self.name))
         for oe in self.on_enter:
             event_data.machine._callback(oe, event_data)
         logger.info("%sEntered state %s", event_data.machine.id, self.name)
 
     def exit(self, event_data: EventData):
-        """ Triggered when a state is exited. """
-        logger.debug("%sExiting state %s. Processing callbacks...", event_data.machine.id, self.name)
+        logger.debug("{}Exiting state {}. Processing callbacks...".format(event_data.machine.id, self.name))
         for oe in self.on_exit:
             event_data.machine._callback(oe, event_data)
-        logger.info("%sExited state %s", event_data.machine.id, self.name)
+        logger.info("{}Exited state {}".format(event_data.machine.id, self.name))
 
     def add_callback(self, trigger: str, func: str):
-        """ Add a new enter or exit callback."""
         callback_list = getattr(self, 'on_' + trigger)
         callback_list.append(func)
 

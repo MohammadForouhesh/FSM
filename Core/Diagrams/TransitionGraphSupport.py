@@ -8,7 +8,6 @@ class TransitionGraphSupport(Transition):
         model = event_data.model
         dest = machine.get_state(self.dest)
 
-        # Mark the previous node and path used
         if self.source is not None:
             source = machine.get_state(self.source)
             machine.set_node_state(model.graph, source.name,
@@ -23,7 +22,6 @@ class TransitionGraphSupport(Transition):
                 machine.set_edge_state(model.graph, source.name,
                                        dest.name, state='previous')
 
-        # Mark the active node
         machine.set_node_state(model.graph, dest.name,
                                state='active', reset=True)
 

@@ -18,39 +18,21 @@ logger.addHandler(logging.NullHandler())
 
 
 class Machine(object):
-    __slots__ = 'models', 'states', '_initial', 'send_event', 'auto_transitions','ignore_invalid_triggers',\
-                'before_state_change', 'after_state_change', 'name', '_queued', '_transition_queue', '_initial',\
-                'events', 'id',
-                
-    # Callback naming parameters
-    callbacks = ['before', 'after', 'prepare', 'on_enter', 'on_exit']
-    separator = '_'
+    __slots__ = 'models', 'states', '_initial', 'send_event', 'ignore_invalid_triggers',\
+                '_queued', '_transition_queue', '_initial', 'events', 'id'
 
     def __init__(self, model: object=None, states: State=None, initial:str=None, transitions: list=None,
-                 send_event: bool=False, auto_transitions: bool=True,
-                 ordered_transitions: bool=False, ignore_invalid_triggers: bool=None,
-                 before_state_change: callable=None, after_state_change: callable=None, name: str=None,
-                 queued: bool=False, add_self: bool=True, **kwargs: dict):
+                 ordered_transitions: bool=False, ignore_invalid_triggers: bool=False, queued: bool=False):
 
-        try:
-            super(Machine, self).__init__(**kwargs)
-        except TypeError as e:
-            raise MachineError('Passing arguments {0} caused an inheritance error: {1}'.format(kwargs.keys(), e))
+        super(Machine, self).__init__()
 
         self.states = OrderedDict()
         self.events = {}
-        self.send_event = send_event
-        self.auto_transitions = auto_transitions
         self.ignore_invalid_triggers = ignore_invalid_triggers
-        self.before_state_change = before_state_change
-        self.after_state_change = after_state_change
-        self.id = name + ": " if name is not None else ""
+        self.id = "Mohammad Forouhesh -> transient"
         self._queued = queued
         self._transition_queue = deque()
         self.models = []
-
-        if model is None and add_self:
-            model = self
 
         if model and initial is None:
             initial = 'initial'
@@ -75,7 +57,6 @@ class Machine(object):
             self.add_model(model)
 
     def add_model(self, model, initial=None):
-        """ Register a model with the state machine, initializing triggers and callbacks. """
         models = listify(model)
 
         if initial is None:
@@ -88,7 +69,7 @@ class Machine(object):
             if model not in self.models:
 
                 if hasattr(model, 'trigger'):
-                    logger.warning("%sModel already contains an attribute 'trigger'. Skip method binding ",self.id)
+                    logger.warning("{}Model already contains an attribute 'trigger'. Skip method binding ", self.id)
                 else:
                     model.trigger = partial(get_trigger, model)
 
@@ -117,12 +98,10 @@ class Machine(object):
 
     @property
     def initial(self):
-        """ Return the initial state. """
         return self._initial
 
     @property
     def has_queue(self):
-        """ Return boolean indicating if machine has queue or not """
         return self._queued
 
     @property
@@ -133,13 +112,11 @@ class Machine(object):
             return self.models
 
     def is_state(self, state, model):
-        """ Check whether the current state matches the named state. """
         return model.state == state
 
     def get_state(self, state):
-        """ Return the State instance with the passed name. """
         if state not in self.states:
-            raise ValueError("State '%s' is not a registered state." % state)
+            raise ValueError("State {} is not a registered state.".format(state))
         return self.states[state]
 
     def set_state(self, state, model=None):
@@ -150,12 +127,8 @@ class Machine(object):
         for m in models:
             m.state = state.name
 
-    def add_state(self, *args, **kwargs):
-        """ Alias for add_states. """
-        self.add_states(*args, **kwargs)
-
     def add_states(self, states: (list or str or dict or State), on_enter: (str or list)=None,
-                   on_exit: (str or list)=None, ignore_invalid_triggers: bool=None):
+                   on_exit: (str or list)=None, ignore_invalid_triggers: bool=False):
 
         ignore = ignore_invalid_triggers
         if ignore is None:
@@ -172,12 +145,9 @@ class Machine(object):
             self.states[state.name] = state
             for model in self.models:
                 self._add_model_to_state(state, model)
-        if self.auto_transitions:
-            for s in self.states.keys():
-                self.add_transition('to_%s' % s, '*', s)
 
     def _add_model_to_state(self, state, model):
-        setattr(model, 'is_%s' % state.name,
+        setattr(model, 'is_{}'.format(state.name),
                 partial(self.is_state, state.name, model))
         enter_callback = 'on_enter_' + state.name
         if hasattr(model, enter_callback) and \
@@ -196,9 +166,7 @@ class Machine(object):
         states = set(args)
         return [t for (t, ev) in self.events.items() if any(state in ev.transitions for state in states)]
 
-    def add_transition(self, trigger: str, source: str, dest: str, conditions:(str or list)=None,
-                       before:(str or list)=None, after:(str or list)=None,
-                       prepare:(str or list)=None, **kwargs: dict):
+    def add_transition(self, trigger: str, source: str, dest: str, conditions:(str or list)=None):
 
         if trigger not in self.events:
             self.events[trigger] = self._create_event(trigger, self)
@@ -213,7 +181,7 @@ class Machine(object):
         for s in source:
             if self._has_state(dest):
                 dest = dest.name
-            t = self._create_transition(s, dest, conditions, **kwargs)
+            t = self._create_transition(s, dest, conditions)
             self.events[trigger].add_transition(t)
 
     def add_ordered_transitions(self, states: list=None, trigger: str='next_state',
@@ -244,7 +212,7 @@ class Machine(object):
             if s in self.states.values():
                 return True
             else:
-                raise ValueError('State %s has not been added to the machine' % s.name)
+                raise ValueError('State {} has not been added to the machine'.format(s.name))
         else:
             return False
 
@@ -293,7 +261,7 @@ class Machine(object):
         if callback_type is not None:
             if callback_type in ['before', 'after', 'prepare']:
                 if target not in self.events:
-                    raise MachineError('Event "%s" is not registered.' % target)
+                    raise MachineError('Event "{}" is not registered.'.format(target))
                 return partial(self.events[target].add_callback, callback_type)
 
             elif callback_type in ['on_enter', 'on_exit']:

@@ -1,3 +1,4 @@
+from Core import Machine
 from Core.Diagrams.Diagram import Diagram
 try:
     import pygraphviz as pgv
@@ -11,21 +12,21 @@ class Graph(Diagram):
 
     style_attributes = {
         'node': {
-            'default': {'shape': 'circle','height': '1.2','style': 'filled','fillcolor': 'white','color': 'black',},
-            'active': {'color': 'red','fillcolor': 'darksalmon','shape': 'doublecircle'},
-            'previous': {'color': 'blue','fillcolor': 'azure2',}},
+            'default': {'shape': 'circle', 'height': '1.2', 'style': 'filled', 'fillcolor': 'white', 'color': 'black'},
+            'active': {'color': 'red'},
+            'previous': {'color': 'blue'}
+                },
         'edge': {
-            'default': {'color': 'black',},
-            'previous': {'color': 'blue',}
+            'default': {'color': 'black'},
+            'previous': {'color': 'blue'}
         }
     }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, machine: Machine):
         self.seen = []
-        super(Graph, self).__init__(*args, **kwargs)
+        super(Graph, self).__init__(machine)
 
     def _add_nodes(self, states, container):
-        # to be able to process children recursively as well as the state dict of a machine
         states = states.values() if isinstance(states, dict) else states
         for state in states:
             if state.name in self.seen:
@@ -64,9 +65,6 @@ class Graph(Diagram):
                         while len(dst.children) > 0:
                             dst = dst.children[0]
 
-                    # special case in which parent to first child edge is resolved to a self reference.
-                    # will be omitted for now. I have not found a solution for how to fix this yet since having
-                    # cluster to node edges is a bit messy with dot.
                     if dst.name == src.name and transitions[0] != t.dest:
                         continue
                     elif container.has_edge(src.name, dst.name):
@@ -89,22 +87,18 @@ class Graph(Diagram):
             )
         return edge_label
 
-    def get_graph(self, title=None):
-        if not pgv:
-            raise Exception('AGraph diagram requires pygraphviz')
-
+    def get_graph(self, title=False):
         if title is False:
             title = ''
 
         fsm_graph = pgv.AGraph(label=title, compound=True, **self.machine_attributes)
         fsm_graph.node_attr.update(self.style_attributes['node']['default'])
 
-        # For each state, draw a circle
         self._add_nodes(self.machine.states, fsm_graph)
 
         self._add_edges(self.machine.events, fsm_graph)
 
-        setattr(fsm_graph, 'style_attributes', self.style_attributes)
+        setattr(fsm_graph, 'style_attributes', self.style_attributes)  # setting style_attributes to class field
 
         return fsm_graph
 

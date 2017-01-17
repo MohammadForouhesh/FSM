@@ -27,11 +27,10 @@ class Event(object):
         f = partial(self._trigger, model, *args, **kwargs)
         return self.machine._process(f)
 
-    def _trigger(self, model, *args, **kwargs) -> bool:
+    def _trigger(self, model) -> bool:
         state = self.machine.get_state(model.state)
         if state.name not in self.transitions:
-            msg = "%sCan't trigger event %s from state %s!" % (self.machine.id, self.name,
-                                                               state.name)
+            msg = "{}Can't trigger event {} from state {}!".format(self.machine.id, self.name, state.name)
             if state.ignore_invalid_triggers:
                 logger.warning(msg)
                 return False

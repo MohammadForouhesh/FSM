@@ -38,7 +38,6 @@ model = Matter()
 machine = GraphMachine(model=model,
                        states=states,
                        transitions=transitions,
-                       auto_transitions=False,
                        initial='0',
                        title="transient",
                        show_conditions=True)
